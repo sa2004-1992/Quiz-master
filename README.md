@@ -4,6 +4,15 @@ A full-stack quiz web app: Flask backend, server-rendered HTML/CSS/JS frontend,
 SQLite database, session-based authentication. Built from the Quiz Master
 spec (`quiz_master_details_web_site.pdf`) and the provided UI screenshots.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Home](screenshots/home.png) Home | ![Quizzes](screenshots/quizzes.png) Quizzes (56 categories) |
+| ![Quiz Playing](screenshots/quiz-playing.png) Quiz Playing | ![Daily Quiz](screenshots/daily-quiz.png) Daily Quiz |
+| ![History](screenshots/history.png) History | ![Leaderboard](screenshots/leaderboard.png) Leaderboard |
+| ![Profile](screenshots/profile.png) Profile | ![All Quiz](screenshots/all-quiz.png) All Quiz |
+
 ## Quick start
 
 ```bash
@@ -16,8 +25,129 @@ Open **http://localhost:5000**, register an account, and start playing.
 
 On the very first run, the app automatically imports the three quiz
 datasets from `app/data_source/` into `instance/quizmaster.db`. This
-takes 15–30 seconds (there are ~713,000 questions total across all three
-datasets). Every run after that is instant.
+takes about 10-20 seconds (there are ~713,000 questions total across all
+three datasets, shipped gzip-compressed). Every run after that is instant.
+
+## Putting this on GitHub
+
+**Upload everything in this folder as-is, with one exception: never
+upload the `instance/` folder** (delete it first if it exists locally --
+`python run.py` recreates it automatically). The provided `.gitignore`
+already excludes it, along with `__pycache__/` and stray `.pyc` files,
+so if you commit normally none of that will be included.
+
+Concretely, here's what should end up in the repo:
+
+| Path | Upload? | Why |
+|---|---|---|
+| `app/` (all `.py` files, `templates/`, `static/`) | ✅ Yes | the application code |
+| `app/data_source/*.csv.gz`, `app/data_source/categories/*.csv.gz` | ✅ Yes | the 3 datasets, gzip-compressed. Every file is under GitHub's 100MB limit this way (the largest is ~33MB) |
+| `app/schema.sql` | ✅ Yes | database schema |
+| `requirements.txt` | ✅ Yes | Python dependencies |
+| `Procfile` | ✅ Yes | tells most hosting platforms how to start the app |
+| `run.py`, `README.md`, `.gitignore` | ✅ Yes | entry point + docs |
+| `instance/` (and `instance/quizmaster.db` if present) | ❌ **No** | this is the generated database -- it can contain real user data/password hashes from your own local testing, and it gets rebuilt automatically on first run anyway |
+| `__pycache__/`, `*.pyc` | ❌ No | compiled Python cache, regenerated automatically |
+| Any plain `*.csv` you may have decompressed locally for testing | ❌ No | already gitignored; keep only the `.csv.gz` versions in the repo |
+
+If you're using the GitHub website's drag-and-drop uploader or
+GitHub Desktop, just uploading the entire `quizmaster` folder is fine as
+long as `instance/` isn't inside it when you drag it in. If you're using
+git on the command line, `git add .` from inside the `quizmaster/`
+folder will correctly respect `.gitignore` and do the right thing.
+
+## Deploying: the one thing that matters most
+
+**This app needs a persistent disk.** Everything -- every registered
+account, every quiz history entry, every score, Daily Quiz streaks --
+lives in the single SQLite file at `instance/quizmaster.db`. That's
+completely fine on a normal server or VM, but it is a real problem on
+hosting platforms whose filesystem is **ephemeral** (wiped on every
+restart or redeploy): on those, your entire database -- including every
+user's account and quiz history -- would vanish the next time the app
+restarts, which can happen automatically at any time (crashes, scaling
+events, routine maintenance), not just when you redeploy.
+
+Before you pick a host, confirm it gives you a **persistent volume/disk**
+mounted at a path you control, and point the app at it:
+
+```
+QUIZMASTER_DATABASE_PATH=/var/data/quizmaster.db   (or wherever your persistent volume is mounted)
+```
+
+Platforms known to need extra care here:
+- **Render / Railway / Heroku free or basic web-service tiers** --
+  typically ephemeral by default. Render and Railway both offer an
+  add-on "persistent disk/volume" (sometimes paid) -- attach one and set
+  `QUIZMASTER_DATABASE_PATH` to a file inside it. Without that add-on,
+  don't use these for anything beyond a demo.
+- **PythonAnywhere, a small VPS (DigitalOcean/Linode/EC2), or any host
+  with a normal persistent filesystem** -- works with zero extra setup,
+  the default `instance/` folder is fine.
+
+If you'd rather not think about this at all, the more robust long-term
+fix is swapping SQLite for a managed hosted database (e.g. your host's
+managed Postgres/MySQL) -- ask if you'd like that change made.
+
+## Required environment variables in production
+
+| Variable | Required? | Purpose |
+|---|---|---|
+| `QUIZMASTER_SECRET_KEY` | **Yes** | signs login sessions; the app prints a warning on startup if you skip this and still uses an insecure default |
+| `QUIZMASTER_DATABASE_PATH` | Recommended | absolute path to your persistent volume (see above); defaults to `instance/quizmaster.db` next to the app |
+| `PORT` | Usually set automatically by your host | which port to bind to |
+
+Start command for platforms that read a `Procfile` (Render, Railway,
+Heroku) is already provided:
+```
+web: gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+```
+If your platform instead wants an explicit start command, use the same
+line. The `--timeout 120` gives the first-boot dataset import (10-20s)
+comfortable headroom so the platform doesn't kill the worker as
+unresponsive during that first startup.
+
+## After you deploy: how to verify everything works
+
+I can't reach your live URL myself (I have no network access once this
+conversation ends), so please run through this checklist on the
+deployed site once it's up -- it exercises every feature end to end:
+
+1. **Register** a brand-new account (unique username/email) -- confirm
+   the Gender pills, password eye-toggle, and confirm-password
+   validation all work, and that it logs you straight in.
+2. **Logout**, then **Login** again with that same account -- confirm
+   the eye-toggle shows/hides the password there too.
+3. **Home page**: confirm the welcome message shows your username and
+   the layout matches (Play All Quiz, Daily Challenge cards, etc.).
+4. **Quizzes page**: search for a category (e.g. "Python"), confirm
+   filtering works, then click Play Now on any category.
+5. **Play a Normal Quiz 1 game**: answer a few questions, confirm the
+   correct/wrong result + explanation appear immediately (no separate
+   click needed), try a Hint, click Previous/Next, then **Finish & Save**.
+6. **History page**: confirm that game just appears at the top with the
+   right category, score, and time.
+7. **Profile page**: confirm the stats updated, and try **Clear All
+   Data** -- confirm the confirmation modal appears, and after
+   confirming, your history/stats reset to zero.
+8. **Play All Quiz** (Normal Quiz 2) from the Home page, finish it, then
+   check the **All Quiz** page reflects it (and Profile does *not*,
+   since Profile is Normal-Quiz-1-only).
+9. **Daily Challenge**: play it once, confirm it blocks a second
+   attempt the same day, and check the streak shows on Profile.
+10. **Leaderboard**: confirm your account appears with the right totals,
+    and that the time-period filters (Today/Week/Month/All Time) work.
+11. **Dark mode toggle**: confirm it switches theme and persists across
+    a page reload/re-login.
+12. **Open the same account from a second browser/device** and confirm
+    your data (history, scores, progress) is identical -- this proves
+    the persistent-disk setup from the section above is actually
+    working. If it *isn't* persisting, that's the #1 thing to check
+    first (see "Deploying" section above).
+
+If anything in that list misbehaves on the live site, tell me exactly
+which step and what you saw (a screenshot helps a lot, like before) and
+I'll fix it.
 
 ## What's included
 
@@ -76,7 +206,8 @@ The spec asks for MySQL. This package uses **SQLite via Python's
 built-in `sqlite3` module** instead, for one practical reason: it makes
 the whole project runnable with just `pip install -r requirements.txt`
 and no external database server to install/configure — genuinely
-"unzip and run."
+"unzip and run" (see the "Deploying" section above for the one caveat
+this brings: it needs a persistent disk in production).
 
 All the SQL in `app/db.py`, `app/quiz_engine.py`, `app/stats.py`,
 `app/auth.py`, and `app/import_data.py` is plain, portable SQL (no
@@ -100,7 +231,8 @@ needed.
 
 ```
 quizmaster/
-  run.py                  # entry point: python run.py
+  run.py                  # entry point: python run.py (local) / gunicorn run:app (prod)
+  Procfile                # start command for Render/Railway/Heroku-style platforms
   requirements.txt
   app/
     __init__.py            # app factory, auto-imports data on first run
@@ -108,27 +240,27 @@ quizmaster/
     db.py                  # sqlite3 connection helper
     schema.sql              # database schema
     categories_meta.py      # the 56 categories: key, display name, icon
-    import_data.py          # CSV -> database importer
+    import_data.py          # CSV(.gz) -> database importer
     quiz_engine.py           # gameplay logic: scoring, hints, sessions
     stats.py                 # aggregation for Profile/All Quiz/Leaderboard/Home
     auth.py                  # register/login/logout
     routes.py                # page routes
     api.py                   # JSON API used by the quiz-playing page
-    data_source/              # the 3 datasets (copied in from your uploads)
+    data_source/              # the 3 datasets, gzip-compressed (*.csv.gz)
     static/
       css/style.css
       js/app.js               # dark mode + logout modal
+      js/auth.js               # password show/hide toggle
       js/quiz.js               # quiz-playing page logic
       img/logo.png
     templates/                 # all HTML pages
-  instance/                    # quizmaster.db is created here on first run
+  instance/                    # quizmaster.db is created here on first run (gitignored)
 ```
 
 ## Notes / things you may want to adjust
 
-- `SECRET_KEY` in `app/config.py` defaults to a dev value — set the
-  `QUIZMASTER_SECRET_KEY` environment variable in production.
-- The dev server (`python run.py`) is for local use; deploy behind a
-  real WSGI server (gunicorn, waitress, etc.) for production.
 - The Quiz Playing page's timer/pause is client-side JavaScript; the
   final time is sent to the server only when you click Finish & Save.
+- "Clear All Data" on the Profile page wipes only the logged-in
+  account's own quiz history/progress/scores after a confirmation
+  prompt; login, profile info, and other accounts are never touched.
