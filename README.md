@@ -7,7 +7,7 @@ spec (`quiz_master_details_web_site.pdf`) and the provided UI screenshots.
 ## Screenshots
 
 ### 🏠 Home
-![Home](screenshots/home.png)
+
 The first page after login. Shows a welcome banner, quick-start cards for
 **Play All Quiz** and the **Daily Challenge**, a shortcut back into
 whichever Normal Quiz 1 category you played most recently, and a
@@ -15,14 +15,14 @@ breakdown of your Normal Quiz 1 activity by category (questions played,
 percentages, and your most-played category).
 
 ### 🧩 Quizzes (56 categories)
-![Quizzes](screenshots/quizzes.png)
+
 The Normal Quiz 1 hub. All 56 categories (History, Science, Python,
 Cricket, and so on) are listed as searchable/filterable cards, each
 showing how many questions that category has and a **Play Now** button
 that jumps straight into the Quiz Playing page for it.
 
 ### 🎮 Quiz Playing
-![Quiz Playing](screenshots/quiz-playing.png)
+
 The shared gameplay screen for Normal Quiz 1 & 2. One question at a
 time, four options, a live status bar (question count, timer, hints
 remaining, correct/wrong/score), and instant feedback: the moment you
@@ -33,28 +33,28 @@ Quiz 1 & 2 are unlimited-length -- you keep going until you click
 **Save & Finish**.
 
 ### 📅 Daily Quiz
-![Daily Quiz](screenshots/daily-quiz.png)
+
 The same gameplay screen, but for the Daily Challenge: capped at 50
 questions per calendar day, no hints, and only one attempt allowed per
 day (trying again the same day is blocked with a friendly message).
 Completing it builds your Daily Quiz streak, shown on your Profile page.
 
 ### 🕘 History
-![History](screenshots/history.png)
+
 A complete, searchable log of every quiz you've ever played across all
 three quiz types -- date, game number, category, time spent, and score
 for each one, with search, a category filter, a date-range filter, and
 pagination.
 
 ### 🏆 Leaderboard
-![Leaderboard](screenshots/leaderboard.png)
+
 Ranks every player by total score, combining Normal Quiz 1, Normal Quiz
 2, and Daily Quiz together. Includes All Time / This Month / This Week
 / Today filters, your own row highlighted so it's easy to find, and a
 "Your Rank" summary.
 
 ### 👤 Profile
-![Profile](screenshots/profile.png)
+
 Your personal dashboard for **Normal Quiz 1 only**: account details, a
 "Clear All Data" option (with a confirmation step), overall stats
 (games played, accuracy, average score, personal bests), your Daily
@@ -62,7 +62,7 @@ Quiz streak (current + longest), and a per-category performance
 breakdown.
 
 ### 📊 All Quiz
-![All Quiz](screenshots/all-quiz.png)
+
 The detailed stats page for **Normal Quiz 2 ("Play All Quiz") only**:
 totals, personal bests, and overall performance metrics (accuracy,
 average time/score/questions per game, correct vs. wrong rate).
