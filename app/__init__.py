@@ -9,6 +9,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    if app.config["SECRET_KEY"] == "dev-secret-change-me":
+        print("WARNING: Using the default SECRET_KEY. Set the QUIZMASTER_SECRET_KEY "
+              "environment variable before deploying publicly (see README.md).")
+
     init_db(app)
 
     with app.app_context():
