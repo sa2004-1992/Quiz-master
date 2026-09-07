@@ -6,12 +6,66 @@ spec (`quiz_master_details_web_site.pdf`) and the provided UI screenshots.
 
 ## Screenshots
 
-| | |
-|---|---|
-| ![Home](screenshots/home.png) Home | ![Quizzes](screenshots/quizzes.png) Quizzes (56 categories) |
-| ![Quiz Playing](screenshots/quiz-playing.png) Quiz Playing | ![Daily Quiz](screenshots/daily-quiz.png) Daily Quiz |
-| ![History](screenshots/history.png) History | ![Leaderboard](screenshots/leaderboard.png) Leaderboard |
-| ![Profile](screenshots/profile.png) Profile | ![All Quiz](screenshots/all-quiz.png) All Quiz |
+### 🏠 Home
+![Home](screenshots/home.png)
+The first page after login. Shows a welcome banner, quick-start cards for
+**Play All Quiz** and the **Daily Challenge**, a shortcut back into
+whichever Normal Quiz 1 category you played most recently, and a
+breakdown of your Normal Quiz 1 activity by category (questions played,
+percentages, and your most-played category).
+
+### 🧩 Quizzes (56 categories)
+![Quizzes](screenshots/quizzes.png)
+The Normal Quiz 1 hub. All 56 categories (History, Science, Python,
+Cricket, and so on) are listed as searchable/filterable cards, each
+showing how many questions that category has and a **Play Now** button
+that jumps straight into the Quiz Playing page for it.
+
+### 🎮 Quiz Playing
+![Quiz Playing](screenshots/quiz-playing.png)
+The shared gameplay screen for Normal Quiz 1 & 2. One question at a
+time, four options, a live status bar (question count, timer, hints
+remaining, correct/wrong/score), and instant feedback: the moment you
+pick an answer, it shows whether you were right, highlights the correct
+option, and reveals the explanation -- no extra click needed. Hint,
+Previous/Next, Pause, Save & Finish, and Exit are all here too. Normal
+Quiz 1 & 2 are unlimited-length -- you keep going until you click
+**Save & Finish**.
+
+### 📅 Daily Quiz
+![Daily Quiz](screenshots/daily-quiz.png)
+The same gameplay screen, but for the Daily Challenge: capped at 50
+questions per calendar day, no hints, and only one attempt allowed per
+day (trying again the same day is blocked with a friendly message).
+Completing it builds your Daily Quiz streak, shown on your Profile page.
+
+### 🕘 History
+![History](screenshots/history.png)
+A complete, searchable log of every quiz you've ever played across all
+three quiz types -- date, game number, category, time spent, and score
+for each one, with search, a category filter, a date-range filter, and
+pagination.
+
+### 🏆 Leaderboard
+![Leaderboard](screenshots/leaderboard.png)
+Ranks every player by total score, combining Normal Quiz 1, Normal Quiz
+2, and Daily Quiz together. Includes All Time / This Month / This Week
+/ Today filters, your own row highlighted so it's easy to find, and a
+"Your Rank" summary.
+
+### 👤 Profile
+![Profile](screenshots/profile.png)
+Your personal dashboard for **Normal Quiz 1 only**: account details, a
+"Clear All Data" option (with a confirmation step), overall stats
+(games played, accuracy, average score, personal bests), your Daily
+Quiz streak (current + longest), and a per-category performance
+breakdown.
+
+### 📊 All Quiz
+![All Quiz](screenshots/all-quiz.png)
+The detailed stats page for **Normal Quiz 2 ("Play All Quiz") only**:
+totals, personal bests, and overall performance metrics (accuracy,
+average time/score/questions per game, correct vs. wrong rate).
 
 ## Quick start
 
@@ -171,13 +225,32 @@ I'll fix it.
 
 ## Data scope per page (as specified)
 
-| Page | Data source |
-|---|---|
-| Profile | **Normal Quiz 1 only** (stats, category performance) + Daily Quiz streak |
-| All Quiz | **Normal Quiz 2 only** |
-| History | All 3 quiz types, searchable/filterable |
-| Leaderboard | All 3 quiz types combined, across all users |
-| Home | Normal Quiz 1 category breakdown + shortcuts to Play All Quiz / Daily Challenge |
+Each page pulls from a different slice of your quiz data on purpose --
+here's exactly what feeds each one:
+
+**Profile** — draws from **Normal Quiz 1 only**. Every stat here (games
+played, accuracy, personal bests, category-by-category performance) is
+calculated purely from your Normal Quiz 1 history. The one exception is
+the Streak card, which comes from your Daily Quiz activity (consecutive
+calendar days completed).
+
+**All Quiz** — draws from **Normal Quiz 2 only** (the "Play All Quiz"
+mode). Same kind of stats as Profile, but scoped entirely to your Play
+All Quiz games instead.
+
+**History** — draws from **all 3 quiz types combined**: Normal Quiz 1,
+Normal Quiz 2, and Daily Quiz all show up here as one searchable,
+filterable log, since History's job is just to be your complete personal
+record of every game you've ever played.
+
+**Leaderboard** — draws from **all 3 quiz types combined, across every
+user account**. Your total score/questions/games/time here is the sum
+of everything you've played in any mode, ranked against everyone else's
+same combined total.
+
+**Home** — draws from your **Normal Quiz 1** activity for the category
+breakdown and "most played category" widgets, plus quick-launch
+shortcuts into Play All Quiz (Normal Quiz 2) and the Daily Challenge.
 
 ## Design decisions & how the spec was interpreted
 
